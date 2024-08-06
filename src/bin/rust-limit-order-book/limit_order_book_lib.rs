@@ -1,9 +1,11 @@
 
-use std::str::FromStr;
 use std::fmt;
-use ordered_float::NotNan;
+use std::str::FromStr;
 use std::collections::VecDeque;
 use std::collections::BTreeMap;
+
+use ordered_float::NotNan;
+
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum OrderSide {
