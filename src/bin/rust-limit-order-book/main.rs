@@ -16,9 +16,6 @@
 // volume
 // source exchange (expect a maximum of 1 per price level)
 
-// wss://ws.kraken.com/v2
-// wss://ws-feed.exchange.coinbase.com
-
 // NOTE: Why floats (`f64`) for price?
 //
 // While it is true that we cannot expect to perform math operations on floating point
