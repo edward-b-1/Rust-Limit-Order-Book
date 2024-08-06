@@ -49,22 +49,22 @@ impl FromStr for OrderSide {
 }
 
 #[derive(Debug)]
-pub struct Order<'t, 's> {
-    ticker: &'t str,
+pub struct Order<'s> {
+    ticker: &'s str,
     order_side: OrderSide,
     price: NotNan<f64>,
     volume: NotNan<f64>,
     source_exchange: &'s str,
 }
     
-impl<'t, 's> Order<'t, 's> {
+impl<'s> Order<'s> {
     pub fn new(
-        ticker: &'t str,
+        ticker: &'s str,
         order_side: OrderSide,
         price: f64,
         volume: f64,
         source_exchange: &'s str,
-    ) -> Result<Order<'t, 's>, ordered_float::FloatIsNan> {
+    ) -> Result<Order<'s>, ordered_float::FloatIsNan> {
         Ok(
             Order {
                 ticker,
@@ -78,20 +78,20 @@ impl<'t, 's> Order<'t, 's> {
 }
 
 #[derive(Debug)]
-pub struct PriceLevel<'t, 's> {
+pub struct PriceLevel<'s> {
     price: NotNan<f64>,
-    orders: VecDeque<Order<'t, 's>>,
+    orders: VecDeque<Order<'s>>,
 }
 
-impl <'t, 's> PriceLevel<'t, 's> {
-    pub fn new(price: NotNan<f64>) -> PriceLevel<'t, 's> {
+impl <'s> PriceLevel<'s> {
+    pub fn new(price: NotNan<f64>) -> PriceLevel<'s> {
         PriceLevel {
             price,
             orders: VecDeque::new(),
         }
     }
 
-    pub fn add_order(&mut self, order: Order<'t, 's>) {
+    pub fn add_order(&mut self, order: Order<'s>) {
         assert!(order.price == self.price);
         self.orders.push_back(order);
     }
@@ -110,20 +110,20 @@ impl <'t, 's> PriceLevel<'t, 's> {
 }
 
 #[derive(Debug)]
-pub struct SingleSideLimitOrderBook<'t, 's> {
+pub struct SingleSideLimitOrderBook<'s> {
     order_side: OrderSide,
-    price_levels: BTreeMap<NotNan<f64>, PriceLevel<'t, 's>>,
+    price_levels: BTreeMap<NotNan<f64>, PriceLevel<'s>>,
 }
 
-impl<'t, 's> SingleSideLimitOrderBook<'t, 's> {
-    pub fn new(order_side: OrderSide) -> SingleSideLimitOrderBook<'t, 's> {
+impl<'s> SingleSideLimitOrderBook<'s> {
+    pub fn new(order_side: OrderSide) -> SingleSideLimitOrderBook<'s> {
         SingleSideLimitOrderBook {
             order_side,
             price_levels: BTreeMap::new(),
         }
     }
 
-    pub fn add_order(&mut self, order: Order<'t, 's>) {
+    pub fn add_order(&mut self, order: Order<'s>) {
         assert!(order.order_side == self.order_side); // TODO: maybe some proper error type here
         let price = order.price;
         let price_level = self.price_levels.entry(price).or_insert(PriceLevel::new(price));
@@ -145,14 +145,14 @@ impl<'t, 's> SingleSideLimitOrderBook<'t, 's> {
 }
 
 #[derive(Debug)]
-pub struct DoubleSideLimitOrderBook<'t, 's> {
-    ticker: &'t str,
-    buy_side_limit_order_book: SingleSideLimitOrderBook<'t, 's>,
-    sell_side_limit_order_book: SingleSideLimitOrderBook<'t, 's>,
+pub struct DoubleSideLimitOrderBook<'s> {
+    ticker: &'s str,
+    buy_side_limit_order_book: SingleSideLimitOrderBook<'s>,
+    sell_side_limit_order_book: SingleSideLimitOrderBook<'s>,
 }
 
-impl<'t, 's> DoubleSideLimitOrderBook<'t, 's> {
-    pub fn new(ticker: &'t str) -> DoubleSideLimitOrderBook {
+impl<'s> DoubleSideLimitOrderBook<'s> {
+    pub fn new(ticker: &'s str) -> DoubleSideLimitOrderBook {
         DoubleSideLimitOrderBook {
             ticker,
             buy_side_limit_order_book: SingleSideLimitOrderBook::new(OrderSide::BUY),
@@ -160,7 +160,7 @@ impl<'t, 's> DoubleSideLimitOrderBook<'t, 's> {
         }
     }
 
-    pub fn add_order(&mut self, order: Order<'t, 's>) {
+    pub fn add_order(&mut self, order: Order<'s>) {
         assert!(order.ticker == self.ticker);
         match order.order_side {
             OrderSide::BUY => {
@@ -198,18 +198,18 @@ impl<'t, 's> DoubleSideLimitOrderBook<'t, 's> {
 }
 
 #[derive(Debug)]
-pub struct MultiTickerLimitOrderBook<'t, 's> {
-    double_limit_order_books: BTreeMap<&'t str, DoubleSideLimitOrderBook<'t, 's>>,
+pub struct MultiTickerLimitOrderBook<'s> {
+    double_limit_order_books: BTreeMap<&'s str, DoubleSideLimitOrderBook<'s>>,
 }
 
-impl<'t, 's> MultiTickerLimitOrderBook<'t, 's> {
-    pub fn new() -> MultiTickerLimitOrderBook<'t, 's> {
+impl<'s> MultiTickerLimitOrderBook<'s> {
+    pub fn new() -> MultiTickerLimitOrderBook<'s> {
         MultiTickerLimitOrderBook {
             double_limit_order_books: BTreeMap::new(),
         }
     }
 
-    pub fn total_volume(&mut self, ticker: &'t str, order_side: &OrderSide) -> BTreeMap<NotNan<f64>, NotNan<f64>> {
+    pub fn total_volume(&mut self, ticker: &'s str, order_side: &OrderSide) -> BTreeMap<NotNan<f64>, NotNan<f64>> {
         let double_side_limit_order_book = 
             self.double_limit_order_books
                 .entry(ticker)
