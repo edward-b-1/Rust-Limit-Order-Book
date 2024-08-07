@@ -30,7 +30,7 @@ I chose this design for two reasons:
 1. It demonstrates a detailed understanding of how floating point encoding works
 2. I personally thought it was more interesting than choosing fixed point or other BCD type. It provides more to discuss during an interview
 
-The IEEE 745 standard defines how floating point values are encoded. For a 64 bit floating point value, the first bit represents the sign (S), the following 8 bits are used for the exponent (E), and the final 55 bits are used for the mantissa (M).
+The IEEE 745 standard defines how floating point values are encoded. For a 64 bit floating point value, the first bit represents the sign (S), the following 11 bits are used for the exponent (E), and the final 52 bits are used for the mantissa (M).
 
 The value encoded is calculated by the formula
 
