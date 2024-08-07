@@ -75,4 +75,42 @@ impl<'s> MultiTickerLimitOrderBook<'s> {
         let lob = &self.double_limit_order_books;
         println!("{lob:?}");
     }
+
+    pub fn highest_bid_price_by_exchange(&mut self, ticker: &'s str)
+        -> BTreeMap<&str, NotNan<f64>>
+    {
+        self.double_limit_order_books
+            .entry(ticker)
+            .or_insert(DoubleSideLimitOrderBook::new(ticker))
+            .highest_bid_price_by_exchange()
+    }
+
+    pub fn lowest_ask_price_by_exchange(&mut self, ticker: &'s str)
+        -> BTreeMap<&str, NotNan<f64>>
+    {
+        self.double_limit_order_books
+            .entry(ticker)
+            .or_insert(DoubleSideLimitOrderBook::new(ticker))
+            .lowest_ask_price_by_exchange()
+    }
+
+    pub fn spread(&mut self, ticker: &'s str) -> Option<NotNan<f64>> {
+        let double_side_limit_order_book =
+            self.double_limit_order_books
+                .entry(ticker)
+                .or_insert(
+                    DoubleSideLimitOrderBook::new(ticker)
+                );
+        double_side_limit_order_book.spread()
+    }
+
+    pub fn spread_by_exchange(&mut self, ticker: &'s str) -> BTreeMap<&str, Option<NotNan<f64>>> {
+        let double_side_limit_order_book =
+            self.double_limit_order_books
+                .entry(ticker)
+                .or_insert(
+                    DoubleSideLimitOrderBook::new(ticker)
+                );
+        double_side_limit_order_book.spread_by_exchange()
+    }
 }

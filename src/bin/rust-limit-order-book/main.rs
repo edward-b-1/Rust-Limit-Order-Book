@@ -131,5 +131,21 @@ fn main() {
         limit_order_book.total_volume_by_source_exchange(ticker_BTC_USD, &OrderSide::SELL);
     println!("Total volume SELL by source exchange: {total_volume_sell_by_source_exchange:?}");
 
+    #[allow(non_snake_case)]
+    let round_trip_10_BTC_cost = total_cost_to_buy - total_profit_from_sell;
+    println!("Round Trip Cost (10 BTC): {round_trip_10_BTC_cost}");
+
+    let spread = limit_order_book.spread(ticker_BTC_USD);
+    println!("Spread (All Exchanges): {spread:?}");
+
+    let spreads = limit_order_book.spread_by_exchange(ticker_BTC_USD);
+    println!("Spreads: {spreads:?}");
+
+    println!("Highest Bid, Lowest Ask by Exchange:");
+    let highest_bids = limit_order_book.highest_bid_price_by_exchange(ticker_BTC_USD);
+    println!("Bids: {highest_bids:?}");
+    let lowest_asks = limit_order_book.lowest_ask_price_by_exchange(ticker_BTC_USD);
+    println!("Asks: {lowest_asks:?}");
+
     println!("Program ends");
 }

@@ -113,6 +113,35 @@ fn single_side_limit_order_book_test() {
     );
 
     assert_eq!(total_volume, expected_total_volume);
+
+    // Test highest price and lowest price functions
+
+    let highest_price = single_side_limit_order_book.highest_price();
+    let lowest_price = single_side_limit_order_book.lowest_price();
+
+    assert_eq!(lowest_price, Some(NotNan::new(100.0).unwrap()));
+    assert_eq!(highest_price, Some(NotNan::new(102.0).unwrap()));
+
+    // Test highest price by exchange and lowest price by exchange
+
+    let highest_price_by_exchange = single_side_limit_order_book.highest_price_by_exchange();
+    let lowest_price_by_exchange = single_side_limit_order_book.lowest_price_by_exchange();
+
+    let expected_highest_price_by_exchange = BTreeMap::from(
+        [
+            (SOURCE_EXCHANGE_1, NotNan::new(100.0).unwrap()),
+            (SOURCE_EXCHANGE_2, NotNan::new(102.0).unwrap()),
+        ]
+    );
+    let expected_lowest_price_by_exchange = BTreeMap::from(
+        [
+            (SOURCE_EXCHANGE_1, NotNan::new(100.0).unwrap()),
+            (SOURCE_EXCHANGE_2, NotNan::new(102.0).unwrap()),
+        ]
+    );
+
+    assert_eq!(highest_price_by_exchange, expected_highest_price_by_exchange);
+    assert_eq!(lowest_price_by_exchange, expected_lowest_price_by_exchange);
 }
 
 
@@ -126,16 +155,16 @@ fn double_side_limit_order_book_test() {
     let order_1 = Order::new(
         ticker,
         OrderSide::BUY,
-        100.0,
-        20.0,
+        102.0,
+        10.0,
         SOURCE_EXCHANGE_1,
     ).unwrap();
 
     let order_2 = Order::new(
         ticker,
         OrderSide::BUY,
-        102.0,
-        10.0,
+        100.0,
+        20.0,
         SOURCE_EXCHANGE_2,
     ).unwrap();
 
@@ -173,6 +202,70 @@ fn double_side_limit_order_book_test() {
         );
 
         assert_eq!(total_volume, expected_total_volume);
+    }
+
+    // Test total volume by source exchange
+    {
+        let total_volume = double_side_limit_order_book.total_volume_by_source_exchange(&OrderSide::BUY);
+        let expected_total_volume = BTreeMap::from(
+            [
+                (SOURCE_EXCHANGE_1, NotNan::new(10.0).unwrap()),
+                (SOURCE_EXCHANGE_2, NotNan::new(20.0).unwrap()),
+            ]
+        );
+        assert_eq!(total_volume, expected_total_volume);
+    }
+
+    {
+        let total_volume = double_side_limit_order_book.total_volume_by_source_exchange(&OrderSide::SELL);
+        let expected_total_volume = BTreeMap::from(
+            [
+                (SOURCE_EXCHANGE_2, NotNan::new(12.0).unwrap()),
+            ]
+        );
+        assert_eq!(total_volume, expected_total_volume);
+    }
+
+    // Test total volume by price level and source exchange
+    {
+        let total_volume = double_side_limit_order_book.total_volume_by_price_level_and_source_exchange(&OrderSide::BUY);
+        let expected_total_volume = BTreeMap::from(
+            [
+                (NotNan::new(100.0).unwrap(), BTreeMap::from([(SOURCE_EXCHANGE_2, NotNan::new(20.0).unwrap())])),
+                (NotNan::new(102.0).unwrap(), BTreeMap::from([(SOURCE_EXCHANGE_1, NotNan::new(10.0).unwrap())])),
+            ]
+        );
+        assert_eq!(total_volume, expected_total_volume);
+    }
+
+    {
+        let total_volume = double_side_limit_order_book.total_volume_by_price_level_and_source_exchange(&OrderSide::SELL);
+        let expected_total_volume = BTreeMap::from(
+            [
+                (NotNan::new(110.0).unwrap(), BTreeMap::from([(SOURCE_EXCHANGE_2, NotNan::new(12.0).unwrap())])),
+            ]
+        );
+        assert_eq!(total_volume, expected_total_volume);
+    }
+
+    // Test spread
+    {
+        let spread = double_side_limit_order_book.spread();
+        assert_eq!(spread, Some(NotNan::new(8.0).unwrap()));
+    }
+
+    // Test spread by exchange
+    {
+        let spread_by_exchange = double_side_limit_order_book.spread_by_exchange();
+        assert_eq!(
+            spread_by_exchange,
+            BTreeMap::from(
+                [
+                    (SOURCE_EXCHANGE_1, None),
+                    (SOURCE_EXCHANGE_2, Some(NotNan::new(10.0).unwrap()))
+                ]
+            )
+        )
     }
 }
 

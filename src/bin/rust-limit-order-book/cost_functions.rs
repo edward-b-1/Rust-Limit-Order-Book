@@ -20,6 +20,7 @@ pub fn profit_function_sell<'s, 'l>(
         //println!("in profit_function_sell: inspecting price level {price}, which has volume {volume}, these should be descending");
         let volume_to_sell = std::cmp::min(*volume, target_volume).into_inner(); // cannot be NaN
         let profit_from_selling = volume_to_sell * price.into_inner();
+        //println!("profit_function_sell: price_level={price}, volume={volume}, profit_from_selling={profit_from_selling}");
         total_profit += profit_from_selling;
         target_volume -= volume_to_sell;
         if *target_volume <= 0.0 {
@@ -69,6 +70,7 @@ pub fn cost_function_buy<'s, 'l>(
         //println!("in cost_function_buy: inspecting price level {price}, which has volume {volume}, these should be ascending");
         let volume_to_take = std::cmp::min(*volume, target_volume).into_inner(); // cannot be NaN
         let cost_of_taking = volume_to_take * price.into_inner();
+        //println!("cost_function_buy: price_level={price}, volume={volume}, cost_of_taking={cost_of_taking}");
         total_cost += cost_of_taking;
         target_volume -= volume_to_take;
         if *target_volume <= 0.0 {
