@@ -22,7 +22,7 @@ The series of operations performed on incoming data is as follows:
 
 - Incoming price values are encoded as strings
 - These string values are parsed and converted to floating point values
-- The price values are small enough to be encoded as floating point values without loss of precision. In other words, there are less than 64 bits of information in each price string
+- The price values are small enough to be encoded as floating point values without loss of precision. In other words, there are less than 64 bits of information in each price string, so no information is lost
 - Since the same function is used to parse every string value, it is guaranteed that for any input string, the same output float is always generated
 
 I chose this design for two reasons:
