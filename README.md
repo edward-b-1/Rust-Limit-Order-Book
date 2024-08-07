@@ -30,6 +30,36 @@ I chose this design for two reasons:
 1. It demonstrates a detailed understanding of how floating point encoding works
 2. I personally thought it was more interesting than choosing fixed point or other BCD type. It provides more to discuss during an interview
 
+The IEEE 745 standard defines how floating point values are encoded. For a 64 bit floating point value, the first bit represents the sign (S), the following 8 bits are used for the exponent (E), and the final 55 bits are used for the mantissa (M).
+
+The value encoded is calculated by the formula
+
+```
+(-1)^S * (1 + M * 2^(-52)) * 2^(E-127)
+```
+
+assuming that the mantissa (M) is an integer value in the range 0 to 2^52 - 1.
+
+Some numbers, like 100, can be encoded exactly using a 64 bit floating point representation.
+
+- 100 = (1 + 1/2 + 1/16) * 2^6
+
+Others, such as 0.1, cannot. The closest possible representation of 0.1 as a 64 bit floating point value is
+
+```
+0.1000000000000000055511151231257827021181583404541015625
+```
+
+or, in binary (S, E, M)
+
+```
+0 01111111011 1001100110011001100110011001100110011001100110011010
+```
+
+You can play with IEEE 754 numbers here:
+
+- https://www.h-schmidt.net/FloatConverter/IEEE754.html
+
 # Example Output:
 
 ```
