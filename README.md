@@ -16,7 +16,7 @@ There is a rather unusual design decision in that floating point encoded price v
 
 Normally, in production grade software, prices would be encoded using either fixed point values, some other type from a libary which implements decimal encoding, or (possibly) strings.
 
-In this particular case, there is risk of loss in precision because no arithmatic calculations are performed on the floating point price values which are used as a key to a data structure.
+In this particular case, th risk of loss in precision is mitigated as no arithmatic calculations are performed on the floating point price values which are used as a key to a data structure.
 
 The series of operations performed on incoming data is as follows:
 
