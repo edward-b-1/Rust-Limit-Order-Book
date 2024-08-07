@@ -57,8 +57,11 @@ use kraken_lib::load_kraken_book;
 
 use cost_functions::cost_function_buy;
 use cost_functions::profit_function_sell;
+use cost_functions::cost_function_buy_with_source_exchange;
+use cost_functions::profit_function_sell_with_source_exchange;
 
 use limit_order_book_lib::MultiTickerLimitOrderBook;
+use limit_order_book_lib::OrderSide;
 
 use ordered_float::NotNan;
 
@@ -111,6 +114,22 @@ fn main() {
 
     let total_profit_from_sell = profit_function_sell(&mut limit_order_book, ticker_BTC_USD, target_volume.clone());
     println!("Total profit from SELL {target_volume} BTC: ${total_profit_from_sell}");
+
+    let total_cost_to_buy_by_source_exchange = 
+        cost_function_buy_with_source_exchange(&mut limit_order_book, ticker_BTC_USD, target_volume.clone());
+    println!("Total cost to BUY {target_volume} BTC by source exchange: {total_cost_to_buy_by_source_exchange:?}");
+
+    let total_profit_from_sell_by_source_exchange = 
+        profit_function_sell_with_source_exchange(&mut limit_order_book, ticker_BTC_USD, target_volume.clone());
+    println!("Total profit from SELL {target_volume} BTC by source exchange: {total_profit_from_sell_by_source_exchange:?}");
+
+    let total_volume_buy_by_source_exchange = 
+        limit_order_book.total_volume_by_source_exchange(ticker_BTC_USD, &OrderSide::BUY);
+    println!("Total volume BUY by source exchange: {total_volume_buy_by_source_exchange:?}");
+    
+    let total_volume_sell_by_source_exchange = 
+        limit_order_book.total_volume_by_source_exchange(ticker_BTC_USD, &OrderSide::SELL);
+    println!("Total volume SELL by source exchange: {total_volume_sell_by_source_exchange:?}");
 
     println!("Program ends");
 }
